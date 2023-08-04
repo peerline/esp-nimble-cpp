@@ -38,71 +38,73 @@ class NimBLEAdvertisedDevice;
  */
 class NimBLEClient {
 public:
-    bool                                        connect(NimBLEAdvertisedDevice* device, bool deleteAttributes = true);
-    bool                                        connect(const NimBLEAddress &address, bool deleteAttributes = true);
-    bool                                        connect(bool deleteAttributes = true);
-    int                                         disconnect(uint8_t reason = BLE_ERR_REM_USER_CONN_TERM);
-    NimBLEAddress                               getPeerAddress();
-    void                                        setPeerAddress(const NimBLEAddress &address);
-    int                                         getRssi();
-    std::vector<NimBLERemoteService*>*          getServices(bool refresh = false);
+    bool connect(NimBLEAdvertisedDevice* device, bool deleteAttributes = true);
+    bool connect(const NimBLEAddress& address, bool deleteAttributes = true);
+    bool connect(bool deleteAttributes = true);
+    // ykh
+    bool connect(const NimBLEAddress& address, uint16_t connId);
+    int disconnect(uint8_t reason = BLE_ERR_REM_USER_CONN_TERM);
+    NimBLEAddress getPeerAddress();
+    void setPeerAddress(const NimBLEAddress& address);
+    int getRssi();
+    std::vector<NimBLERemoteService*>* getServices(bool refresh = false);
     std::vector<NimBLERemoteService*>::iterator begin();
     std::vector<NimBLERemoteService*>::iterator end();
-    NimBLERemoteService*                        getService(const char* uuid);
-    NimBLERemoteService*                        getService(const NimBLEUUID &uuid);
-    void                                        deleteServices();
-    size_t                                      deleteService(const NimBLEUUID &uuid);
-    NimBLEAttValue                              getValue(const NimBLEUUID &serviceUUID, const NimBLEUUID &characteristicUUID);
-    bool                                        setValue(const NimBLEUUID &serviceUUID, const NimBLEUUID &characteristicUUID,
-                                                         const NimBLEAttValue &value, bool response = false);
-    NimBLERemoteCharacteristic*                 getCharacteristic(const uint16_t handle);
-    bool                                        isConnected();
-    void                                        setClientCallbacks(NimBLEClientCallbacks *pClientCallbacks,
-                                                                   bool deleteCallbacks = true);
-    std::string                                 toString();
-    uint16_t                                    getConnId();
-    uint16_t                                    getMTU();
-    bool                                        secureConnection();
-    void                                        setConnectTimeout(uint32_t timeout);
-    void                                        setConnectionParams(uint16_t minInterval, uint16_t maxInterval,
-                                                                    uint16_t latency, uint16_t timeout,
-                                                                    uint16_t scanInterval=16, uint16_t scanWindow=16);
-    void                                        updateConnParams(uint16_t minInterval, uint16_t maxInterval,
-                                                                 uint16_t latency, uint16_t timeout);
-    void                                        setDataLen(uint16_t tx_octets);
-    bool                                        discoverAttributes();
-    NimBLEConnInfo                              getConnInfo();
-    int                                         getLastError();
+    NimBLERemoteService* getService(const char* uuid);
+    NimBLERemoteService* getService(const NimBLEUUID& uuid);
+    void deleteServices();
+    size_t deleteService(const NimBLEUUID& uuid);
+    NimBLEAttValue getValue(const NimBLEUUID& serviceUUID, const NimBLEUUID& characteristicUUID);
+    bool setValue(const NimBLEUUID& serviceUUID, const NimBLEUUID& characteristicUUID,
+        const NimBLEAttValue& value, bool response = false);
+    NimBLERemoteCharacteristic* getCharacteristic(const uint16_t handle);
+    bool isConnected();
+    void setClientCallbacks(NimBLEClientCallbacks* pClientCallbacks,
+        bool deleteCallbacks = true);
+    std::string toString();
+    uint16_t getConnId();
+    uint16_t getMTU();
+    bool secureConnection();
+    void setConnectTimeout(uint32_t timeout);
+    void setConnectionParams(uint16_t minInterval, uint16_t maxInterval,
+        uint16_t latency, uint16_t timeout,
+        uint16_t scanInterval = 16, uint16_t scanWindow = 16);
+    void updateConnParams(uint16_t minInterval, uint16_t maxInterval,
+        uint16_t latency, uint16_t timeout);
+    void setDataLen(uint16_t tx_octets);
+    bool discoverAttributes();
+    NimBLEConnInfo getConnInfo();
+    int getLastError();
 #if CONFIG_BT_NIMBLE_EXT_ADV
-    void                                        setConnectPhy(uint8_t mask);
+    void setConnectPhy(uint8_t mask);
 #endif
 
 private:
-    NimBLEClient(const NimBLEAddress &peerAddress);
+    NimBLEClient(const NimBLEAddress& peerAddress);
     ~NimBLEClient();
 
-    friend class            NimBLEDevice;
-    friend class            NimBLERemoteService;
+    friend class NimBLEDevice;
+    friend class NimBLERemoteService;
 
-    static int              handleGapEvent(struct ble_gap_event *event, void *arg);
-    static int              serviceDiscoveredCB(uint16_t conn_handle,
-                                                const struct ble_gatt_error *error,
-                                                const struct ble_gatt_svc *service,
-                                                void *arg);
-    static void             dcTimerCb(ble_npl_event *event);
-    bool                    retrieveServices(const NimBLEUUID *uuid_filter = nullptr);
+    static int handleGapEvent(struct ble_gap_event* event, void* arg);
+    static int serviceDiscoveredCB(uint16_t conn_handle,
+        const struct ble_gatt_error* error,
+        const struct ble_gatt_svc* service,
+        void* arg);
+    static void dcTimerCb(ble_npl_event* event);
+    bool retrieveServices(const NimBLEUUID* uuid_filter = nullptr);
 
-    NimBLEAddress           m_peerAddress;
-    int                     m_lastErr;
-    uint16_t                m_conn_id;
-    bool                    m_connEstablished;
-    bool                    m_deleteCallbacks;
-    int32_t                 m_connectTimeout;
-    NimBLEClientCallbacks*  m_pClientCallbacks;
-    ble_task_data_t*        m_pTaskData;
-    ble_npl_callout         m_dcTimer;
+    NimBLEAddress m_peerAddress;
+    int m_lastErr;
+    uint16_t m_conn_id;
+    bool m_connEstablished;
+    bool m_deleteCallbacks;
+    int32_t m_connectTimeout;
+    NimBLEClientCallbacks* m_pClientCallbacks;
+    ble_task_data_t* m_pTaskData;
+    ble_npl_callout m_dcTimer;
 #if CONFIG_BT_NIMBLE_EXT_ADV
-    uint8_t                 m_phyMask;
+    uint8_t m_phyMask;
 #endif
 
     std::vector<NimBLERemoteService*> m_servicesVector;
@@ -112,7 +114,6 @@ private:
     ble_gap_conn_params m_pConnParams;
 
 }; // class NimBLEClient
-
 
 /**
  * @brief Callbacks associated with a %BLE client.
